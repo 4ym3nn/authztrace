@@ -1,0 +1,72 @@
+{
+  "name": "authztrace",
+  "version": "0.1.0",
+  "description": "Authorization state-machine testing for APIs, background jobs, and MCP tools.",
+  "type": "module",
+  "private": true,
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4ym3nn/authztrace.git"
+  },
+  "keywords": [
+    "authorization",
+    "security-testing",
+    "state-machine",
+    "mcp",
+    "sarif"
+  ],
+  "packageManager": "pnpm@10.18.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "bin": {
+    "authztrace": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
+    "docs",
+    "scenarios"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "tsc -p tsconfig.check.json",
+    "test": "node --test --import tsx test/*.test.ts",
+    "test:coverage": "node --experimental-test-coverage --test --test-coverage-include='src/**' --import tsx test/*.test.ts",
+    "test:integration": "node --test --import tsx test/integration/*.test.ts",
+    "fixture:vulnerable": "AUTHZTRACE_MODE=vulnerable tsx examples/reference-server.ts",
+    "fixture:patched": "AUTHZTRACE_MODE=patched tsx examples/reference-server.ts",
+    "demo": "tsx examples/demo.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:package": "pnpm build && node scripts/package-smoke.mjs",
+    "verify": "pnpm format:check && pnpm check && pnpm test && pnpm test:integration && pnpm test:package"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.0",
+    "yaml": "2.9.1",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "prettier": "3.9.0",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

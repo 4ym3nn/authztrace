@@ -1,0 +1,52 @@
+version: 1
+name: queued export is denied after requester revocation
+description: A background worker must recheck the initiating user's current permission.
+actors:
+  alice:
+    headers: { x-user: alice }
+  admin:
+    headers: { x-user: admin }
+  worker:
+    headers: { x-user: worker }
+targets:
+  api:
+    type: http
+    baseUrl: ${AUTHZTRACE_TARGET:-http://127.0.0.1:4317}
+steps:
+  - kind: http
+    id: reset
+    target: api
+    actor: admin
+    method: POST
+    path: /reset
+    expect: { status: 200 }
+  - kind: http
+    id: queue_as_authorized_user
+    target: api
+    actor: alice
+    method: POST
+    path: /exports
+    body: { documentId: quarterly-report }
+    save: queued
+    expect: { status: 202, path: body.jobId }
+  - kind: http
+    id: revoke_requester
+    target: api
+    actor: admin
+    method: DELETE
+    path: /members/alice
+    expect: { status: 204 }
+  - kind: http
+    id: run_after_revocation
+    target: api
+    actor: worker
+    method: POST
+    path: /jobs/{{queued.body.jobId}}/run
+    expect: { status: 403, path: body.error, equals: requester_revoked }
+  - kind: http
+    id: confirm_no_effect
+    target: api
+    actor: worker
+    method: GET
+    path: /jobs/{{queued.body.jobId}}
+    expect: { status: 200, path: body.state, equals: queued }

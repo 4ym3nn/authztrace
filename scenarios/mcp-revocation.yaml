@@ -1,0 +1,22 @@
+version: 1
+name: MCP tool observes permission revocation
+targets:
+  tools:
+    type: mcp
+    command: ${NODE:-node}
+    args: [--import, tsx, examples/reference-mcp.ts]
+    env:
+      AUTHZTRACE_MODE: patched
+steps:
+  - kind: mcp
+    id: revoke_access
+    target: tools
+    tool: set_access
+    arguments: { allowed: false }
+    expect: { error: false }
+  - kind: mcp
+    id: execute_after_revocation
+    target: tools
+    tool: export_document
+    arguments: { documentId: quarterly-report }
+    expect: { error: true }

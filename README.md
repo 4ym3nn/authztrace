@@ -4,6 +4,18 @@ AuthzTrace tests authorization as a sequence of state changes instead of a list 
 
 Use it in controlled systems where you have permission to run security tests.
 
+## Running examples
+
+The same queued-export scenario catches stale authorization in the vulnerable worker and passes when the worker rechecks the requester's permission. The post-state assertion also detects that the operation expected to be denied still completed.
+
+![AuthzTrace detects execution after revocation in the vulnerable worker and passes the patched worker.](docs/images/revocation-demo.png)
+
+The MCP example revokes access before invoking the protected tool. Both assertions pass when the server reports that the tool call was denied.
+
+![AuthzTrace runs a real MCP subprocess and verifies that a protected tool rejects execution after permission revocation.](docs/images/mcp-revocation.png)
+
+These captures show actual local CLI output rendered for readability. Regenerate them with `pnpm build && node scripts/capture-examples.mjs` using Chromium; set `CHROMIUM` if the executable has a different name. Transcripts are saved under `reports/screenshots/`.
+
 ## Why state matters
 
 Many authorization failures require a transition:
